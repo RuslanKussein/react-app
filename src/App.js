@@ -57,14 +57,14 @@ const App = () => {
 };
 
 const Search = ({search, onSearch}) => (
-    <div>
+    <>
         <label htmlFor="search">Search: </label>
-        <input 
+        <input
             id="search" 
             type="text"
             value={search} 
-            onChange={onSearch} />
-    </div>
+            onChange={onSearch}/>
+    </>
 );
 
 const List = ({list}) =>
