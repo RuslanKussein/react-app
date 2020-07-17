@@ -19,6 +19,14 @@ const initialStories = [
     },
 ];
 
+const getAsyncStories = () =>
+    new Promise(resolve =>
+        setTimeout(
+            () => resolve({ data: {stories: initialStories}}),
+            2000
+        )
+    );
+
 const useSemiPersistentState = (key, initialState) => {
     const [value, setValue] = React.useState(
         localStorage.getItem(key) || initialState
@@ -32,13 +40,18 @@ const useSemiPersistentState = (key, initialState) => {
 };
 
 const App = () => {
-
     const [searchTerm, setSearchTerm] = useSemiPersistentState(
         'search',
         'React'
     );
 
-    const [stories, setStories] = React.useState(initialStories);
+    const [stories, setStories] = React.useState([]);
+
+    React.useEffect(() => {
+        getAsyncStories().then(res => {
+            setStories(res.data.stories);
+        })
+    }, []);
 
     const handleRemoveStory = item => {
         const newStories = stories.filter(
@@ -51,9 +64,9 @@ const App = () => {
         setSearchTerm(event.target.value);
     };
 
-    const searchedStories = stories.filter(story =>
-        story.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const searchedStories = stories.filter(story => {
+        return story.title.toLowerCase().includes(searchTerm.toLowerCase())
+    });
 
     return (
         <div>
@@ -78,13 +91,13 @@ const App = () => {
 };
 
 const InputWithLabel = ({
-                            id,
-                            value,
-                            type = 'text',
-                            onInputChange,
-                            isFocused,
-                            children,
-                        }) => {
+    id,
+    value,
+    type = 'text',
+    onInputChange,
+    isFocused,
+    children,
+    }) => {
     const inputRef = React.useRef();
 
     React.useEffect(() => {
