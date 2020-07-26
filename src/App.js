@@ -2,6 +2,7 @@ import React from 'react';
 import axios from "axios";
 import styles from "./App.module.css";
 import styled from 'styled-components';
+import { ReactComponent as Check } from './check.svg';
 
 const StyledContainer = styled.div`
     height: 100vw;
@@ -261,12 +262,13 @@ const Item = ({ item, onRemoveItem }) => (
         <StyledColumn width="10%">{item.num_comments}</StyledColumn>
         <StyledColumn width="10%">{item.points}</StyledColumn>
         <StyledColumn width="10%">
-            <StyledButtonSmall
+            <button
                 type="button"
                 onClick={() => onRemoveItem(item)}
+                className={`${styles.button} ${styles.buttonSmall}`}
             >
-                Dismiss
-            </StyledButtonSmall>
+                <Check height="18px" width="18px" />
+            </button>
         </StyledColumn>
     </StyledItem>
 );
