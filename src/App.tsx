@@ -219,7 +219,7 @@ const App = () => {
     return (
         <StyledContainer>
             <StyledHeadlinePrimary>My Hacker Stories</StyledHeadlinePrimary>
-            <SearchFormProps
+            <SearchForm
                 searchTerm={searchTerm}
                 onSearchInput={handleSearchInput}
                 onSearchSubmit={handleSearchSubmit}
@@ -244,7 +244,7 @@ type SearchFormProps = {
     onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 };
 
-const SearchFormProps = ({
+const SearchForm= ({
     searchTerm,
     onSearchInput,
     onSearchSubmit} : SearchFormProps) => (
@@ -327,11 +327,16 @@ const Item = ({ item, onRemoveItem }: ItemProps) => (
             <span>{item.num_comments}</span>
             <span>{item.points}</span>
             <span>
-              <button type="button" onClick={() => onRemoveItem(item)}>
-                Dismiss
-              </button>
+                 <button
+                     type="button"
+                     onClick={() => onRemoveItem(item)}
+                     className={`${styles.button} ${styles.buttonSmall}`}
+                 >
+                    <Check height="18px" width="18px" />
+                </button>
             </span>
         </div>
 );
 
 export default App;
+export {SearchForm, InputWithLabel, List, Item};
