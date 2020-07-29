@@ -57,7 +57,7 @@ describe('Item', () => {
 
 describe("List", () => {
   const list = [
-    {g
+    {
       title: 'React',
       url: 'https://reactjs.org/',
       author: 'Jordan Walke',

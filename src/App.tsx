@@ -1,8 +1,9 @@
 import React from 'react';
 import axios from "axios";
-import styles from "./App.module.css";
 import styled from 'styled-components';
-import { ReactComponent as Check } from './check.svg';
+import List from "./List";
+import SearchForm from "./SearchForm";
+
 
 type Story = {
     objectID: string;
@@ -15,10 +16,6 @@ type Story = {
 
 type Stories = Array<Story>;
 
-type ListProps = {
-    list: Stories;
-    onRemoveItem: (item: Story) => void;
-};
 
 type StoriesState = {
     data: Stories;
@@ -61,53 +58,6 @@ const StyledHeadlinePrimary = styled.h1`
     font-weight: 300;
     letter-spacing: 2px;
 `;
-
-const StyledItem = styled.div`
-    display: flex;
-    align-items: center;
-    padding-bottom: 5px;
-`;
-
-const StyledButton = styled.button`
-    background: transparent;
-    border: 1px solid #171212;
-    padding: 5px;
-    cursor: pointer;
-    transition: all 0.1s ease-in;
-    &:hover {
-    background: #171212;
-    color: #ffffff;
-    }
-`;
-
-const StyledButtonSmall = styled(StyledButton)`
-    padding: 5px;
-`;
-
-const StyledButtonLarge = styled(StyledButton)`
-    padding: 10px;
-`;
-
-const StyledSearchForm = styled.form`
-    padding: 10px 0 20px 0;
-    display: flex;
-    align-items: baseline;
-`;
-
-const StyledLabel = styled.label`
-    border-top: 1px solid #171212;
-    border-left: 1px solid #171212;
-    padding-left: 5px;
-    font-size: 24px;
-`;
-
-const StyledInput = styled.input`
-    border: none;
-    border-bottom: 1px solid #171212;
-    background-color: transparent;
-    font-size: 24px;
-`;
-
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
@@ -238,105 +188,5 @@ const App = () => {
     );
 };
 
-type SearchFormProps = {
-    searchTerm: string;
-    onSearchInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-};
-
-const SearchForm= ({
-    searchTerm,
-    onSearchInput,
-    onSearchSubmit} : SearchFormProps) => (
-    <StyledSearchForm onSubmit={onSearchSubmit}>
-        <InputWithLabel
-            id="search"
-            value={searchTerm}
-            isFocused
-            onInputChange={onSearchInput}
-        >
-            <strong>Search:</strong>
-        </InputWithLabel>
-        <StyledButtonLarge type="submit" disabled={!searchTerm}>
-            Submit
-        </StyledButtonLarge>
-    </StyledSearchForm>
-);
-
-type InputWithLabelProps = {
-    id: string;
-    value: string;
-    type?: string;
-    onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    isFocused?: boolean;
-    children: React.ReactNode;
-};
-
-const InputWithLabel = ({
-    id,
-    value,
-    type = 'text',
-    onInputChange,
-    isFocused,
-    children,
-   }: InputWithLabelProps) => {
-    const inputRef = React.useRef<HTMLInputElement>(null!);
-
-    React.useEffect(() => {
-        if (inputRef.current && isFocused) {
-            inputRef.current.focus();
-        }
-    }, [isFocused]);
-
-    return (
-        <>
-            <StyledLabel htmlFor={id}>{children}</StyledLabel>
-            &nbsp;
-            <StyledInput
-                ref={inputRef}
-                id={id}
-                type={type}
-                value={value}
-                onChange={onInputChange}
-            />
-        </>
-    );
-};
-
-const List = ({ list, onRemoveItem } : ListProps) =>
-    <>
-        {list.map(item => (
-        <Item
-            key={item.objectID}
-            item={item}
-            onRemoveItem={onRemoveItem}/>
-        ))}
-    </>
-
-type ItemProps = {
-    item: Story;
-    onRemoveItem: (item: Story) => void;
-}
-
-const Item = ({ item, onRemoveItem }: ItemProps) => (
-        <div>
-            <span>
-              <a href={item.url}>{item.title}</a>
-            </span>
-            <span>{item.author}</span>
-            <span>{item.num_comments}</span>
-            <span>{item.points}</span>
-            <span>
-                 <button
-                     type="button"
-                     onClick={() => onRemoveItem(item)}
-                     className={`${styles.button} ${styles.buttonSmall}`}
-                 >
-                    <Check height="18px" width="18px" />
-                </button>
-            </span>
-        </div>
-);
-
 export default App;
-export {SearchForm, StyledInput, List, Item};
+export type {Story, Stories};
