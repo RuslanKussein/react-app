@@ -283,7 +283,7 @@ const InputWithLabel = ({
     const inputRef = React.useRef<HTMLInputElement>(null!);
 
     React.useEffect(() => {
-        if (isFocused) {
+        if (inputRef.current && isFocused) {
             inputRef.current.focus();
         }
     }, [isFocused]);
@@ -339,4 +339,4 @@ const Item = ({ item, onRemoveItem }: ItemProps) => (
 );
 
 export default App;
-export {SearchForm, InputWithLabel, List, Item};
+export {SearchForm, StyledInput, List, Item};
