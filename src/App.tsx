@@ -21,6 +21,7 @@ type StoriesState = {
     data: Stories;
     isLoading: boolean;
     isError: boolean;
+    page: number
 };
 
 interface StoriesFetchInitAction {
@@ -28,7 +29,10 @@ interface StoriesFetchInitAction {
 }
 interface StoriesFetchSuccessAction {
     type: 'STORIES_FETCH_SUCCESS';
-    payload: Stories;
+    payload: {
+        list: Stories,
+        page: number
+    };
 }
 interface StoriesFetchFailureAction {
     type: 'STORIES_FETCH_FAILURE';
@@ -91,7 +95,10 @@ const storiesReducer = (state: StoriesState, action: StoriesAction)  => {
                 ...state,
                 isLoading: false,
                 isError: false,
-                data: action.payload,
+                data: action.payload.page === 0
+                    ? action.payload.list
+                    : state.data.concat(action.payload.list),
+                page: action.payload.page,
             };
         case 'STORIES_FETCH_FAILURE':
             return {
@@ -110,11 +117,20 @@ const storiesReducer = (state: StoriesState, action: StoriesAction)  => {
             throw new Error();
     }
 };
-const extractSearchTerm = (url:string) => url.replace(API_ENDPOINT, '');
+const extractSearchTerm = (url:string) =>
+    url
+        .substring(url.lastIndexOf('?') + 1, url.lastIndexOf('&'))
+        .replace(PARAM_SEARCH, '')
 
 const getLastSearches = (urls:Array<string>) => urls.slice(-5).map(url =>extractSearchTerm(url));
 
-const getUrl = (searchTerm:string) => `${API_ENDPOINT}${searchTerm}`;
+const API_BASE = 'https://hn.algolia.com/api/v1';
+const API_SEARCH = '/search';
+const PARAM_SEARCH = 'query=';
+const PARAM_PAGE = "page=";
+
+const getUrl = (searchTerm: string, page: number) =>
+    `${API_BASE}${API_SEARCH}?${PARAM_SEARCH}${searchTerm}${page}`;
 
 const App = () => {
     const [searchTerm, setSearchTerm] = useSemiPersistentState(
@@ -122,11 +138,11 @@ const App = () => {
         'React'
     );
 
-    const [urls, setUrls] = React.useState([getUrl(searchTerm)]);
+    const [urls, setUrls] = React.useState([getUrl(searchTerm, 0)]);
 
     const [stories, dispatchStories] = React.useReducer(
         storiesReducer,
-        {data: [], isLoading: false, isError: false}
+        {data: [], page: 0, isLoading: false, isError: false}
     );
 
     const handleFetchStories = React.useCallback(() => {
@@ -138,7 +154,10 @@ const App = () => {
             .then(result => {
                 dispatchStories({
                     type: 'STORIES_FETCH_SUCCESS',
-                    payload: result.data.hits,
+                    payload: {
+                        list: result.data.hits,
+                        page: result.data.page
+                    }
                 });
             })
             .catch(() =>
@@ -163,19 +182,25 @@ const App = () => {
     };
 
     const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        handleSearch(searchTerm);
+        handleSearch(searchTerm, 0);
         event.preventDefault();
     };
 
     const handleLastSearch = (searchTerm: string) => {
-        handleSearch(searchTerm);
+        setSearchTerm(searchTerm);
+        handleSearch(searchTerm, 0);
     };
 
-    const handleSearch = (searchTerm: string)=> {
-        const url = getUrl(searchTerm);
+    const handleSearch = (searchTerm: string, page: number)=> {
+        const url = getUrl(searchTerm, page);
         setUrls(urls.concat(url));
     };
 
+    const handleMore = () => {
+        const lastUrl = urls[urls.length - 1];
+        const searchTerm = extractSearchTerm(lastUrl);
+        handleSearch(searchTerm, stories.page + 1);
+    };
     const lastSearches = getLastSearches(urls);
 
     return (
@@ -199,13 +224,16 @@ const App = () => {
 
             {stories.isError && <p>Something went wrong ...</p>}
 
+            <List list={stories.data} onRemoveItem={handleRemoveStory} />
+
             {stories.isLoading ? (
                 <p>Loading ...</p>
             ) : (
-                <List
-                    list={stories.data}
-                    onRemoveItem={handleRemoveStory}/>
+                <button type="button" onClick={handleMore}>
+                    More
+                </button>
             )}
+
         </StyledContainer>
     );
 };
