@@ -110,7 +110,11 @@ const storiesReducer = (state: StoriesState, action: StoriesAction)  => {
             throw new Error();
     }
 };
+const extractSearchTerm = (url:string) => url.replace(API_ENDPOINT, '');
 
+const getLastSearches = (urls:Array<string>) => urls.slice(-5).map(url =>extractSearchTerm(url));
+
+const getUrl = (searchTerm:string) => `${API_ENDPOINT}${searchTerm}`;
 
 const App = () => {
     const [searchTerm, setSearchTerm] = useSemiPersistentState(
@@ -118,9 +122,7 @@ const App = () => {
         'React'
     );
 
-    const [url, setUrl] = React.useState(
-        `${API_ENDPOINT}${searchTerm}`
-    );
+    const [urls, setUrls] = React.useState([getUrl(searchTerm)]);
 
     const [stories, dispatchStories] = React.useReducer(
         storiesReducer,
@@ -130,8 +132,9 @@ const App = () => {
     const handleFetchStories = React.useCallback(() => {
         if (!searchTerm) return;
         dispatchStories({ type: 'STORIES_FETCH_INIT' });
+        const lastUrl = urls[urls.length - 1];
         axios
-            .get(url)
+            .get(lastUrl)
             .then(result => {
                 dispatchStories({
                     type: 'STORIES_FETCH_SUCCESS',
@@ -141,7 +144,7 @@ const App = () => {
             .catch(() =>
                 dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
             );
-    }, [url]);
+    }, [urls]);
 
     React.useEffect(() => {
         handleFetchStories();
@@ -160,11 +163,20 @@ const App = () => {
     };
 
     const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        setUrl(`${API_ENDPOINT}${searchTerm}`);
+        handleSearch(searchTerm);
         event.preventDefault();
     };
 
-    console.log("B:App");
+    const handleLastSearch = (searchTerm: string) => {
+        handleSearch(searchTerm);
+    };
+
+    const handleSearch = (searchTerm: string)=> {
+        const url = getUrl(searchTerm);
+        setUrls(urls.concat(url));
+    };
+
+    const lastSearches = getLastSearches(urls);
 
     return (
         <StyledContainer>
@@ -174,6 +186,16 @@ const App = () => {
                 onSearchInput={handleSearchInput}
                 onSearchSubmit={handleSearchSubmit}
             />
+
+            {lastSearches.map (searchTerm => (
+                <button
+                    key={searchTerm}
+                    type="button"
+                    onClick={() => handleLastSearch(searchTerm)}
+                >
+                    {searchTerm}
+                </button>
+            ))}
 
             {stories.isError && <p>Something went wrong ...</p>}
 
