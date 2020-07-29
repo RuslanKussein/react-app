@@ -46,12 +46,18 @@ describe('Item', () => {
     expect(handleRemoveItem).toHaveBeenCalledWith(item);
 
     expect(component.root.findAllByType(Item).length).toEqual(1);
+  });
+
+  test("renders snapshot", () => {
+    let tree = component.toJSON();
+    expect(tree).toMatchSnapshot();
   })
+
 });
 
 describe("List", () => {
   const list = [
-    {
+    {g
       title: 'React',
       url: 'https://reactjs.org/',
       author: 'Jordan Walke',
