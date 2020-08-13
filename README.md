@@ -1,3 +1,15 @@
+# Single - Page Application
+
+# Built With:
+- HTML, CSS, JS(ES6+), TypeScript, npm, Styled Components
+- React Hooks, Hackernews API, Jest
+
+# Demo
+- git clone https://github.com/RuslanKussein/react-app.git
+- npm init
+- run npm start
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
